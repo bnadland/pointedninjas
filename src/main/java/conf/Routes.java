@@ -13,7 +13,7 @@ public class Routes implements ApplicationRoutes {
 		// index
         router.GET().route("/").with(ApplicationController.class, "index");
 		// user
-		router.GET().route("/user").with(UserController.class, "getUser");
+		router.GET().route("/user/{id}").with(UserController.class, "getUser");
 		// assets
         router.GET().route("/assets/{fileName: .*}").with(AssetsController.class, "serveStatic");
     }
