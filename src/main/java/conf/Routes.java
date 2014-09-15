@@ -14,6 +14,7 @@ public class Routes implements ApplicationRoutes {
         router.GET().route("/").with(ApplicationController.class, "index");
 		// user
 		router.GET().route("/user/{id}").with(UserController.class, "getUser");
+		router.POST().route("/user").with(UserController.class, "newUser");
 		// assets
         router.GET().route("/assets/{fileName: .*}").with(AssetsController.class, "serveStatic");
     }
