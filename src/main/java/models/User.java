@@ -1,16 +1,15 @@
 package models;
 
 import java.util.Map;
+import com.google.inject.Inject;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.Extensions;
-import redis.clients.jedis.Jedis;
 
 public class User implements UserService {
-	protected static String prefix = "kuband:users:";
-	Jedis j = new Jedis("localhost");
-
+	@Inject
+	RedisService r;
 	public Map<String, String> get(String id) {
-		Map<String, String> u = j.hgetAll(User.prefix.concat(id));
+		Map<String, String> u = r.connection().hgetAll(r.prefix("user").concat(id));
 		PegDownProcessor p = new PegDownProcessor(Extensions.ALL);
 		if(u.containsKey("description")) {
 			u.put("description", p.markdownToHtml(u.get("description")));
@@ -21,7 +20,18 @@ public class User implements UserService {
 	}
 
 	public void set(String id, String description) {
-		j.hset(User.prefix.concat(id), "id", id);
-		j.hset(User.prefix.concat(id), "description", description);
+		r.connection().hset(r.prefix("user").concat(id), "id", id);
+		r.connection().hset(r.prefix("user").concat(id), "name", id);
+		r.connection().hset(r.prefix("user").concat(id), "description", description);
+		setPassword(id, "1234");
+	}
+
+	protected void setPassword(String id, String password) {
+		r.connection().set(r.prefix("password").concat(id), password);
+	}
+
+	public boolean validate(String id, String password) {
+		if(password.equals(r.connection().get(r.prefix("password").concat(id)))) return true;
+		return false;
 	}
 }
